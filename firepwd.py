@@ -410,6 +410,19 @@ def getKey( masterPassword, directory ):
     print('cannot find key4.db or key3.db')  
     return None, None
 
+## Add the support for PGP keys.
+## Once we have the key stored in key4.db we can decrypt encrypted-openpgp-passphrase.txt
+def getPGPPassphrase (masterKey, directory):
+    encryptedOpenPGPPassphrase = directory / 'encrypted-openpgp-passphrase.txt'
+    if not encryptedOpenPGPPassphrase.exists():
+        print(f"No encrypted-openpgp-passphrase.txt found in {directory}")
+        return None
+    with open(encryptedOpenPGPPassphrase, mode='r') as file :
+        filecontent = file.read()
+        decodedKey = decodeLoginData(filecontent)
+        pgpKey = unpad (DES3.new(masterKey, DES3.MODE_CBC, decodedKey[1]).decrypt(decodedKey[2]), 8) 
+        return pgpKey
+
 
 parser = OptionParser(usage="usage: %prog [options]")
 parser.add_option("-v", "--verbose", type="int", dest="verbose", help="verbose level", default=0)
@@ -437,4 +450,8 @@ if algo == '1.2.840.113549.1.12.5.1.3' or algo == '1.2.840.113549.1.5.13':
     iv = i[1][1]
     ciphertext = i[1][2] 
     print ( unpad( DES3.new( key, DES3.MODE_CBC, iv).decrypt(ciphertext),8 ) )
+
+print (f"Decrypting openpgp-passphrase.txt")
+pgpKey = getPGPPassphrase(key, options.directory)
+print(f"PGP Master KEY : {pgpKey}")
  
