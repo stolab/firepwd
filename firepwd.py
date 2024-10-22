@@ -453,5 +453,5 @@ if algo == '1.2.840.113549.1.12.5.1.3' or algo == '1.2.840.113549.1.5.13':
 
 print (f"Decrypting openpgp-passphrase.txt")
 pgpKey = getPGPPassphrase(key, options.directory)
-print(f"PGP Master KEY : {pgpKey}")
+print(f"PGP Password : {pgpKey}")
  
